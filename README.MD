@@ -1,4 +1,2 @@
-# GoFrame Template For SingleRepo
-
-Quick Start: 
-- https://goframe.org/quick
+## 使用Goframe框架前后端实现拼图小游戏
+本项目旨在开发一个拼图游戏web应用，采用前后端分离的架构。后端使用Golang语言以及Goframe框架，负责图像处理和业务逻辑；前端使用简单的html+css+js。本项目作为贴主初学go以及goframe框架而生，逻辑简单，功能单一，仅供参考。
