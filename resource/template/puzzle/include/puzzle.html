@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>拼图</title>
+    <link rel="icon" href="/resource/image/puzzle.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/resource/css/puzzle.css">
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js" defer></script>
+    <script src="/resource/js/confetti.js"></script>
+</head>
+<body>
+<div id="box">
+    <div id="box-son">
+        <div id="left" style="padding: 10px">
+            <div id="left-son"></div>
+        </div>
+        <div id="right" style="padding: 10px">
+            <div id="right-son"></div>
+        </div>
+    </div>
+    <div id="button-box">
+        <button id="gameRestartButton">重新开始</button>
+        <button id="checkOriginButton">查看原图</button>
+        <button id="checkShuffleButton" >查看拼图</button>
+        <button id="submitButton">提交拼图</button>
+    </div>
+    <div id="loading" style="display: none">加载中，请稍候...</div>
+
+    <!-- 查看 原图/拼图 模态弹窗容器 -->
+    <div id="imageModal" style="display: none;" class="modal">
+        <div class="modal-content">
+            <span class="close" id="modelClose">&times;</span>
+            <img id="modalImage" src="" alt="Modal Image"  style="width: 100%;height: 100%;max-width: 960px;max-height: 550px" />
+            <button id="saveShuffleButton" style="margin: 5px auto 0;display: none">保存拼图</button>
+        </div>
+    </div>
+
+    <!-- 二次确认提示框 -->
+    <div class="overlay" id="confirmOverlay">
+        <div class="confirm-box">
+            <p>是否确定重新开始？</p>
+            <button class="cancel" id="cancelBtn">取消</button>
+            <button class="confirm" id="confirmBtn">确认</button>
+        </div>
+    </div>
+
+    <!-- 拼图未完成提示 -->
+    <div class="overlay" id="uncompletedOverlay">
+        <div class="confirm-box">
+            <p id="uncompletedText">拼图尚未完成</p>
+            <button class="confirm" id="uncompletedBtn">确认</button>
+        </div>
+    </div>
+</div>
+
+</body>
+<script type="module">
+    import Puzzle from "/resource/js/puzzle.js"
+    new Puzzle()
+</script>
+</html>

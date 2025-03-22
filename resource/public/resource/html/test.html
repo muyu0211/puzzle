@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>拖拽拼图</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            /* 比如输入框选中时候的边框 */
+            outline: none;
+
+            font-family: "Arial", sans-serif;
+            color: #282828;
+            /* 下划线 */
+            text-decoration: none;
+            /* 列表前面的 点 */
+            list-style-type: none;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            background-size: 100% 100%;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* 公用样式 */
+        #start {
+            width: 100%;
+            height: 100%;
+            position: fixed;
+        }
+
+        #end {
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            mix-blend-mode:luminosity;
+        }
+
+        .box {
+            border-radius: 15px;
+            padding: 40px;
+            margin: 40px 40px;
+            width: calc(100% - 80px);
+            height: calc(100% - 80px);
+            text-align: center;
+            background-color: #F2F2F2;
+        }
+
+        /* 游戏开始 */
+        #start .group {
+            margin-top: 20px;
+        }
+
+        #start .group input,
+        #start .group select {
+            width: 99%;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+        }
+
+        #start .group label {
+            text-transform: uppercase;
+            font-size: 15px;
+            text-align: left;
+        }
+
+        #start .group button {
+            width: 100%;
+            height: 60px;
+        }
+
+        /* 选择上传图片功能 */
+        #start #drop {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            height: 100px;
+            line-height: 100px;
+            text-align: center;
+            border: dotted 1px rgba(0, 0, 0, 0.2);
+        }
+
+        #start #drop p {
+            width: calc(100% - 100px);
+        }
+
+        #start .preview {
+            position: relative;
+            background-color: red;
+            width: 100px;
+            height: 100px;
+        }
+
+        #start .preview img {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            left: 0;
+        }
+
+        #start .preview input {
+            left: 0;
+            top: 0;
+            width: 100px;
+            height: 100px;
+            position: absolute;
+            opacity: 0;
+        }
+
+        /* 游戏内容区域 */
+        #game_container {
+            width: 100%;
+            height: 100%;
+            background-color: #009BBC;
+            padding: 70px 50px 50px;
+            text-align: center;
+
+        }
+
+        #game_container>span {
+            display: inline-block;
+            height: 30px;
+            line-height: 30px;
+            width: 100%;
+            background-color: white;
+        ;
+        }
+
+        #game_container #timer span {
+            display: inline-block;
+            width: 100%;
+            height: 30px;
+            line-height: 30px;
+            background-color: #004D5E;
+        }
+
+        /* 拼图区域 */
+        #puzzle_container {
+            height: 300px;
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+        }
+
+        #puzzle_container #puzzle {
+            width: 300px;
+            height: 300px;
+            border: dotted 1px black;
+            position: relative;
+        }
+
+        #puzzle_container #puzzle_map {
+            border-radius: 0;
+            flex: 1;
+            height: 300px;
+            border: dotted 1px rgb(0, 0, 0);
+        }
+
+        #puzzle_container #puzzle_destionation {
+            width: 300px;
+            height: 300px;
+            position: relative;
+            border: dotted 1px black;
+        }
+
+        #game_container .buttons button {
+            width: 100%;
+            height: 30px;
+        }
+
+        /* 游戏结束 */
+        #end {
+            width: 100%;
+            height: 100%;
+        }
+
+        #end h3 {
+            text-align: center;
+        }
+
+        #end p {
+            text-align: center;
+        }
+
+        #end table {
+
+            width: 100%;
+            /* 共享边框 */
+            border-collapse: collapse;
+        }
+
+        #end table th,
+        td {
+            padding: 10px;
+            border: solid 1px rgb(0, 0, 0, 0.2);
+        }
+
+        #end button {
+            width: 100%;
+            text-align: center;
+            height: 50px;
+        }
+    </style>
+</head>
+
+<body>
+<div id="start" class="">
+    <div class="box">
+        <h1>欢迎玩家</h1>
+        <p>请创建的你的游戏信息</p>
+        <div class="form">
+            <!-- 标题 -->
+            <div class="group">
+                <label for="nickname">玩家昵称</label>
+                <input type="text" value="red润" id="nickname" name="nickname">
+            </div>
+            <!-- 难度 -->
+            <div class="group">
+                <label for="difficult">
+                    难度
+                </label>
+                <select name="difficult" id="difficult">
+                    <option value="">请选择难度</option>
+                    <option value="3">简单</option>
+                    <option value="5">一般</option>
+                    <option value="7">困难</option>
+                    <option value="9">地狱</option>
+                    <option value="11">天堂</option>
+                    <option value="15">不要尝试的难度</option>
+                </select>
+            </div>
+            <!-- 放入图片 -->
+            <div class="group" id="drop">
+                <div class="preview">
+                    <img src="./pic/upload.png" alt="放入拼图">
+                    <input type="file" name="pic" id="pic" accept="image/gif, image/jpeg ,image/png">
+                </div>
+                <p>点击加号（选择你要放入的图片）</p>
+            </div>
+            <div class="group">
+                <button name="submit">
+                    开始(请先上传图片)
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="game_container" class="hidden">
+    <span>用户名</span>
+    <div id="timer">
+        <span>00:00</span>
+    </div>
+    <div id="puzzle_container">
+        <div id="puzzle"></div>
+        <div id="puzzle_map"></div>
+        <div id="puzzle_destionation"></div>
+    </div>
+    <div class="buttons">
+        <button class="stop">暂停</button>
+        <button class="restart">重新开始</button>
+    </div>
+</div>
+<div id="end" class="hidden">
+    <div class="box" style="overflow: scroll;">
+        <h3>拼图完成</h3>
+        <p>游戏胜利！</p>
+        <table>
+            <thead>
+            <tr>
+                <th>排名</th>
+                <th>难度</th>
+                <th>用户名</th>
+                <th>游戏时间</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>1</td>
+                <td>不要尝试的难度</td>
+                <td>red润</td>
+                <td>11:11::23</td>
+            </tr>
+            </tbody>
+        </table>
+        <button
+                onclick="document.querySelector('#end').classList.add('hidden'),document.querySelector('#start').classList.remove('hidden')">再来亿遍</button>
+    </div>
+</div>
+<script type="module">
+    import Main from "../js/test.js"
+    new Main()
+</script>
+</body>
+
+</html>

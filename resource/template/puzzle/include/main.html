@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Splitter</title>
+    <link rel="icon" href="/resource/image/puzzle.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/resource/css/main.css">
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js" defer></script>
+</head>
+<body>
+<div id="box">
+    <div style="border-radius: 24px;border: #3c4043;background-color: #ffffff;padding: 15px">
+        <div id="box-son">
+            <img src="/resource/image/puzzle.png">
+            <h1>拼 图 游 戏</h1>
+        </div>
+        <form enctype="multipart/form-data" >
+            <div id="upload-container" style="display: flex; justify-content: center">
+                <input type="file" id="imageInput" name="image" placeholder="选择图片" accept="image/*" />
+                <input type="number" id="rows" name="rows" placeholder="Rows" style="width: 80px; margin: 0 10px;" />
+                <input type="number" id="cols" name="cols" placeholder="Cols" style="width: 80px;" />
+            </div>
+            <div id="message" style="display: flex; justify-content: center; align-items: center;margin-bottom: 10px; color: #fa5151"></div>
+            <div style="display: flex; justify-content: center; align-items: center">
+                <button id="uploadButton" type="button">切分图片</button>
+            </div>
+        </form>
+    </div>
+    <div id="loading" style="display: none">加载中，请稍候...</div>
+</div>
+
+<script>
+    // 点击按钮发送ajax请求，对图像进行拆分
+    document.addEventListener('DOMContentLoaded', function () {
+        // 限制上传的文件类型和大小
+        document.getElementById('imageInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg']
+                if (!validTypes.includes(file.type)) {
+                    alert('仅支持上传 JPG, JPEG, PNG, GIF格式的图片')
+                    event.target.value = ''; // 清空文件输入
+                }
+                const maxSize = 5 * 1024 * 1024; // 5MB
+                if (file.size > maxSize) {
+                    alert('文件大小超过限制 (5MB)');
+                    event.target.value = ''; // 清空文件输入
+                }
+            }
+        });
+        document.getElementById('uploadButton').addEventListener('click', async function (event) {
+            event.preventDefault(); // 阻止表单默认提交行为
+            let formData = new FormData();
+            let loadingDiv = document.getElementById("loading")
+            formData.append('image', document.getElementById('imageInput').files[0]);
+            formData.append('rows', document.getElementById('rows').value);
+            formData.append('cols', document.getElementById('cols').value);
+
+            // 使用 fetch 发送 POST 请求
+            await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.data.code === 200 && data.code === 0) {
+                        // 移除加载提示
+                        loadingDiv.style.display = "none"
+
+                        // 对/start路由发起请求
+                        startGame(data)
+                    }
+                    document.getElementById('message').innerText = data.data.message;  // 显示错误信息
+                })
+                .catch(error => {
+                    document.getElementById('message').innerText = '请输入行数和列数。';  // 显示错误信息
+                    console.error('上传失败:', error);
+                });
+        });
+    });
+
+    // 跳转至开始拼图页面
+    function startGame(data){
+        let formData = new FormData();
+        formData.append('randomImages', JSON.stringify(data.data.randomImages));
+        // 请求start路由
+        fetch('/start', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.text())  // 处理HTML响应
+            .then(html => {
+                document.open();
+                document.write(html);
+                document.close();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('请求失败');
+            });
+    }
+</script>
+</body>
+</html>
